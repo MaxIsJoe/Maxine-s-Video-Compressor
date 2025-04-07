@@ -1,8 +1,6 @@
 # .github/workflows/release.yaml
 
 on:
-  release:
-    types: [created]
   push:
     branches: [ "main" ]
   pull_request:
@@ -50,6 +48,15 @@ jobs:
             export CGO_ENABLED=1
           fi
           go build -o $BINARY_NAME .
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         if: github.event_name == 'release'
