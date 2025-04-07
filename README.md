@@ -8,7 +8,9 @@ Comes with the option to extract audio from videos, dragging and dropping multip
 
 ## Requirements
 
-Requires [FFMPEG](https://ffmpeg.org/download.html) to use. If you don't have it installed, the application will attempt to install it for you by default using Choco or Scoop on windows, or apt-get on Linux.
+Requires [FFMPEG](https://ffmpeg.org/download.html) to use. 
+
+If you don't have it installed, the application will attempt to install it for you by default using Choco or Scoop on windows, or apt-get on Linux.
 
 ## Building
 
