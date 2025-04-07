@@ -28,7 +28,8 @@ jobs:
     - name: Install dependencies
       run: |
           go get .
-          go get fyne.io/fyne/v2@latest 
+          go get fyne.io/fyne/v2@latest
+          go install fyne.io/fyne/v2/cmd/fyne@latest 
 
 
     - name: Build
