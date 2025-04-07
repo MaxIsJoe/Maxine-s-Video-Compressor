@@ -27,6 +27,7 @@ jobs:
           go env -w CGO_ENABLED=1 
           go get fyne.io/fyne/v2@latest 
           go install fyne.io/fyne/v2/cmd/fyne@latest
+          go mod tidy
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
