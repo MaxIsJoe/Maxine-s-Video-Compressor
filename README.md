@@ -18,7 +18,7 @@ This app uses Fyne, so the first time you compile this project might take a litt
 
 ## Plans
 
-I originally created this as a replacement to [Cheezo's Video Compressor](https://github.com/cheezos/video-compressor) for myself. I may or may not add additonal features in the future, but unless I absolutely need something for my own use cases or there is clear interest in this project, I do not have any plans for this project other than using it for compressing my gameplay clips that I upload on [Bluesky](https://bsky.app/profile/maxisjoe.xyz/post/3lll76fvz5s2w) and Discord, showing this project on my portfolio, and extracting music from music videos on my hard-drive.
+I originally created this as a replacement to [Cheezo's Video Compressor](https://github.com/cheezos/video-compressor) for myself. I may or may not add additonal features in the future, but unless I absolutely need something for my own use cases or there is clear interest in this project, I do not have any plans for this project other than maintaining it for compressing my gameplay clips that I upload on [Bluesky](https://bsky.app/profile/maxisjoe.xyz/post/3lll76fvz5s2w) and Discord, showing this project on my portfolio, and extracting music from music videos on my hard-drive.
 
 ## Donate
 
