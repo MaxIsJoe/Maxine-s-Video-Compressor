@@ -4,7 +4,7 @@
 
 A simple FFMPEG GUI wrapper that is designed to compress videos for uploading content on size-limitng platforms such as Discord. Written in Go, and utilizes Fyne for the graphical interface.
 
-Comes with the option to extract audio from videos, dragging and dropping multiple video files for bulk compressing, and the ability to utilise your GPU for faster encoding.
+Comes with the option to extract audio from videos, dragging and dropping multiple video files for bulk compressing, and the ability to utilize your GPU for faster encoding.
 
 ## Requirements
 
