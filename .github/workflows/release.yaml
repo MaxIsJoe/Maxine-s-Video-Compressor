@@ -29,6 +29,7 @@ jobs:
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
         goversion: "https://go.dev/dl/go1.24.2.linux-amd64.tar.gz"
+        pre_command: "sudo apt-get install golang gcc libgl1-mesa-dev xorg-dev libxkbcommon-dev && go env -w CGO_ENABLED=1 && go get fyne.io/fyne/v2@latest && go install fyne.io/fyne/v2/cmd/fyne@latest"
         project_path: "."
         binary_name: "maxine-video-compression"
         extra_files: LICENSE README.md
