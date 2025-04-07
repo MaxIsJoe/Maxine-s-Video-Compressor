@@ -31,12 +31,14 @@ jobs:
           go mod tidy
       - name: Set Output Binary Name
         id: vars
-        run: echo "binary_name=maxine-vc-${{ matrix.goos }}-${{ matrix.goarch }}" >> $GITHUB_OUTPUT
+        run: |
+          echo "BINARY_NAME=maxine-vc-${{ matrix.goos }}-${{ matrix.goarch }}" >> $GITHUB_ENV
+          echo "binary_name=maxine-vc-${{ matrix.goos }}-${{ matrix.goarch }}" >> $GITHUB_OUTPUT
       - name: Build Go Binary
         run: |
           export GOOS=${{ matrix.goos }}
           export GOARCH=${{ matrix.goarch }}
-          go build -o ${{ steps.vars.outputs.binary_name }} ./cmd/maxine-vc
+          go build -o $BINARY_NAME ./cmd/maxine-vc
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         if: github.event_name == 'release'
