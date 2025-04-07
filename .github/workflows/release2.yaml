@@ -22,11 +22,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Prepare
+      - name: Install Dependencies
         run: |
-          sudo apt-get install golang gcc libgl1-mesa-dev xorg-dev libxkbcommon-dev 
-          go env -w CGO_ENABLED=1 
-          go get fyne.io/fyne/v2@latest 
+          sudo apt-get update
+          sudo apt-get install -y golang gcc libgl1-mesa-dev xorg-dev libxkbcommon-dev
+          if [[ "${{ matrix.goos }}" == "windows" ]]; then
+            sudo apt-get install -y gcc-mingw-w64
+          fi
+      - name: Prepare Go Environment
+        run: |
+          go get fyne.io/fyne/v2@latest
           go install fyne.io/fyne/v2/cmd/fyne@latest
           go mod tidy
       - name: Set Output Binary Name
@@ -38,6 +43,12 @@ jobs:
         run: |
           export GOOS=${{ matrix.goos }}
           export GOARCH=${{ matrix.goarch }}
+          if [[ "$GOOS" == "windows" ]]; then
+            export CGO_ENABLED=1
+            export CC=x86_64-w64-mingw32-gcc
+          else
+            export CGO_ENABLED=1
+          fi
           go build -o $BINARY_NAME .
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
