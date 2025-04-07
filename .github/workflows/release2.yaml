@@ -15,21 +15,21 @@ jobs:
         goos: [linux, windows]
         goarch: [amd64]
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Prepare
-    - run: |
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Prepare
+      - run: |
           sudo apt-get install golang gcc libgl1-mesa-dev xorg-dev libxkbcommon-dev 
           go env -w CGO_ENABLED=1 
           go get fyne.io/fyne/v2@latest 
           go install fyne.io/fyne/v2/cmd/fyne@latest
           go mod tidy
-    - name: Action
-    - uses: actions/checkout@v3
-    - uses: wangyoucao577/go-release-action@v1.33
-      with:
+      - name: Action
+      - uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1.33
+        with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
