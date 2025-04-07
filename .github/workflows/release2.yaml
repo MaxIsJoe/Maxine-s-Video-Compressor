@@ -59,7 +59,7 @@ jobs:
             NAME="$NAME.exe"
           fi
           echo "BINARY_NAME=$NAME" >> $GITHUB_ENV
-          echo "binary_name=$NAME" >> $GITHUB_OUTPU
+          echo "binary_name=$NAME" >> $GITHUB_OUTPUT
 
       - name: Build Binary
         run: |
