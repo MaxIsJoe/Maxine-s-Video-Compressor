@@ -38,7 +38,7 @@ jobs:
         run: |
           export GOOS=${{ matrix.goos }}
           export GOARCH=${{ matrix.goarch }}
-          go build -o $BINARY_NAME ./cmd/maxine-vc
+          go build -o $BINARY_NAME .
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         if: github.event_name == 'release'
