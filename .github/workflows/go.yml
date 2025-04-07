@@ -21,6 +21,16 @@ jobs:
       with:
         go-version: '1.24.2'
 
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21.x'
+    - name: Install dependencies
+      run: |
+          go get .
+          go get fyne.io/fyne/v2@latest 
+
+
     - name: Build
       run: go build -v ./...
 
