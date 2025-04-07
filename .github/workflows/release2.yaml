@@ -54,8 +54,12 @@ jobs:
       - name: Set Binary Name
         id: vars
         run: |
-          echo "BINARY_NAME=maxine-vc-${{ matrix.goos }}-${{ matrix.goarch }}" >> $GITHUB_ENV
-          echo "binary_name=maxine-vc-${{ matrix.goos }}-${{ matrix.goarch }}" >> $GITHUB_OUTPUT
+          NAME=maxine-vc-${{ matrix.goos }}-${{ matrix.goarch }}
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            NAME="$NAME.exe"
+          fi
+          echo "BINARY_NAME=$NAME" >> $GITHUB_ENV
+          echo "binary_name=$NAME" >> $GITHUB_OUTPU
 
       - name: Build Binary
         run: |
