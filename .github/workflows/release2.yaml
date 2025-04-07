@@ -29,13 +29,18 @@ jobs:
           go get fyne.io/fyne/v2@latest 
           go install fyne.io/fyne/v2/cmd/fyne@latest
           go mod tidy
-      - name: Action
-        uses: wangyoucao577/go-release-action@v1.33
+      - name: Set Output Binary Name
+        id: vars
+        run: echo "binary_name=maxine-vc-${{ matrix.goos }}-${{ matrix.goarch }}" >> $GITHUB_OUTPUT
+      - name: Build Go Binary
+        run: |
+          export GOOS=${{ matrix.goos }}
+          export GOARCH=${{ matrix.goarch }}
+          go build -o ${{ steps.vars.outputs.binary_name }} ./cmd/maxine-vc
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'release'
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          goos: ${{ matrix.goos }}
-          goarch: ${{ matrix.goarch }}
-          goversion: "https://go.dev/dl/go1.24.2.linux-amd64.tar.gz"
-          project_path: "."
-          binary_name: "maxine-video-compressor"
-          extra_files: LICENSE README.md
+          files: ${{ steps.vars.outputs.binary_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
