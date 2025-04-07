@@ -1,28 +1,43 @@
-# .github/workflows/release.yaml
-
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
     branches: [ "main" ]
 
 permissions:
   contents: write
 
 jobs:
-  releases-matrix:
-    name: Release Go Binary
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.set-tag.outputs.tag }}
+    steps:
+      - name: Generate Tag
+        id: set-tag
+        run: echo "tag=v${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.set-tag.outputs.tag }}
+          name: Release ${{ steps.set-tag.outputs.tag }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-and-upload:
+    name: Build and Upload Binaries
+    needs: create-release
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # build and publish in parallel: linux/386, linux/amd64, linux/arm64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
         goos: [linux, windows]
         goarch: [amd64]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+
       - name: Install Dependencies
         run: |
           sudo apt-get update
@@ -30,17 +45,19 @@ jobs:
           if [[ "${{ matrix.goos }}" == "windows" ]]; then
             sudo apt-get install -y gcc-mingw-w64
           fi
-      - name: Prepare Go Environment
+
+      - name: Prepare Go
         run: |
-          go get fyne.io/fyne/v2@latest
           go install fyne.io/fyne/v2/cmd/fyne@latest
           go mod tidy
-      - name: Set Output Binary Name
+
+      - name: Set Binary Name
         id: vars
         run: |
           echo "BINARY_NAME=maxine-vc-${{ matrix.goos }}-${{ matrix.goarch }}" >> $GITHUB_ENV
           echo "binary_name=maxine-vc-${{ matrix.goos }}-${{ matrix.goarch }}" >> $GITHUB_OUTPUT
-      - name: Build Go Binary
+
+      - name: Build Binary
         run: |
           export GOOS=${{ matrix.goos }}
           export GOARCH=${{ matrix.goarch }}
@@ -51,19 +68,11 @@ jobs:
             export CGO_ENABLED=1
           fi
           go build -o $BINARY_NAME .
-      - name: Create GitHub Release
-        if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
+
+      - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.run_number }}
-          name: Release v${{ github.run_number }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload Release Asset
-        uses: softprops/action-gh-release@v2
-        with:
+          tag_name: ${{ needs.create-release.outputs.tag }}
           files: ${{ steps.vars.outputs.binary_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
