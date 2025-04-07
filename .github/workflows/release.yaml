@@ -1,4 +1,5 @@
-# .github/workflows/release.yaml
+# .github/workflows/release.yml
+name: goreleaser
 
 on:
   release:
@@ -13,23 +14,34 @@ permissions:
     packages: write
 
 jobs:
-  releases-matrix:
-    name: Release Go Binary
+  goreleaser:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # build and publish in parallel: linux/386, linux/amd64, linux/arm64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
-        goos: [linux, windows]
-        goarch: ["386", amd64]
     steps:
-    - uses: actions/checkout@v4
-    - uses: wangyoucao577/go-release-action@v1
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        goos: ${{ matrix.goos }}
-        goarch: ${{ matrix.goarch }}
-        goversion: "https://go.dev/dl/go1.24.2.linux-amd64.tar.gz"
-        pre_command: "sudo apt-get install golang gcc libgl1-mesa-dev xorg-dev libxkbcommon-dev && go env -w CGO_ENABLED=1 && go get fyne.io/fyne/v2@latest && go install fyne.io/fyne/v2/cmd/fyne@latest"
-        project_path: "."
-        binary_name: "maxine-video-compression"
-        extra_files: LICENSE README.md
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Prepare
+        run: |
+          sudo apt-get install golang gcc libgl1-mesa-dev xorg-dev libxkbcommon-dev 
+          go env -w CGO_ENABLED=1 
+          go get fyne.io/fyne/v2@latest 
+          go install fyne.io/fyne/v2/cmd/fyne@latest
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      # More assembly might be required: Docker logins, GPG, etc.
+      # It all depends on your needs.
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          # either 'goreleaser' (default) or 'goreleaser-pro'
+          distribution: goreleaser
+          # 'latest', 'nightly', or a semver
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
+          # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
