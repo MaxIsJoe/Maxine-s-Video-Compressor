@@ -82,14 +82,53 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   generate-changelog:
-    name: Generate Changelog
-    needs: build-and-upload
-    runs-on: ubuntu-latest
-    steps:
-      - name: Generate and Update Release Notes
-        uses: mikepenz/release-changelog-builder-action@v4
-        with:
-          configuration: ".github/changelog-configuration.json"
-          tag: ${{ needs.create-release.outputs.tag }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      name: Generate Changelog and Update Release
+      needs: build-and-upload
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0  # Full history needed to diff tags
+  
+        - name: Get Previous Tag
+          id: prev-tag
+          run: |
+            PREV_TAG=$(git tag --sort=-creatordate | grep '^v' | sed -n '2p')
+            echo "Previous tag: $PREV_TAG"
+            echo "previous_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+  
+        - name: Generate Changelog
+          id: changelog
+          run: |
+            echo "Generating changelog from ${{ steps.prev-tag.outputs.previous_tag }} to HEAD"
+  
+            CHANGELOG=""
+            for COMMIT in $(git log ${{ steps.prev-tag.outputs.previous_tag }}..HEAD --merges --pretty=format:"%H"); do
+              PR_LINE=$(git log -1 --pretty=format:"%s" $COMMIT | grep -Eo '#[0-9]+')
+              TITLE=$(git log -1 --pretty=format:"%b" $COMMIT | head -n 1)
+              if [[ -n "$PR_LINE" && -n "$TITLE" ]]; then
+                CHANGELOG="${CHANGELOG}- ${PR_LINE} ${TITLE}"$'\n'
+              fi
+            done
+  
+            echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+            echo "$CHANGELOG" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+  
+        - name: Update GitHub Release with Changelog
+          run: |
+            TAG_NAME=${{ needs.create-release.outputs.tag }}
+            BODY="${{ env.CHANGELOG }}"
+            echo "Updating release $TAG_NAME with changelog:"
+            echo "$BODY"
+  
+            curl -s \
+              -X PATCH \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              https://api.github.com/repos/${{ github.repository }}/releases/tags/$TAG_NAME \
+              -d @- <<EOF
+            {
+              "body": "${BODY//$'\n'/\\n}"
+            }
