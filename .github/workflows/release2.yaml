@@ -80,3 +80,16 @@ jobs:
           files: ${{ steps.vars.outputs.binary_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  generate-changelog:
+    name: Generate Changelog
+    needs: build-and-upload
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate and Update Release Notes
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          configuration: ".github/changelog-configuration.json"
+          tag: ${{ needs.create-release.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
